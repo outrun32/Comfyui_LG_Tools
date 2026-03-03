@@ -65,7 +65,7 @@ app.registerExtension({
                 api.addEventListener("image_preview_update", async (event) => {
                     const data = event.detail;
                     if (data && data.node_id === this.id.toString()) {
-                        console.log(`[ImagePreview] 节点 ${this.id} 接收到更新数据`);
+                        console.log(`[ImagePreview] Node ${this.id} received update data`);
                         if (data.image_data) {
                             this.loadImageFromBase64(data.image_data);
                         }
@@ -146,7 +146,7 @@ app.registerExtension({
                     const endpoint = '/image_preview/apply';
                     const nodeId = String(this.id);
                     
-                    console.log(`[ImagePreview] 发送调整后的数据 - 尺寸: ${adjustedData.width}x${adjustedData.height}`);
+                    console.log(`[ImagePreview] Sending adjusted data - Size: ${adjustedData.width}x${adjustedData.height}`);
                     
                     const canvas = document.createElement('canvas');
                     canvas.width = adjustedData.width;
@@ -169,7 +169,7 @@ app.registerExtension({
                         body: formData
                     });
                 } catch (error) {
-                    console.error('发送数据时出错:', error);
+                    console.error('Error while sending data:', error);
                 }
             };
 

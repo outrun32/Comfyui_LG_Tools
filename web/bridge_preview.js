@@ -119,7 +119,7 @@ function bindCancelButton() {
         
         const cancelButtons = Array.from(maskEditor.querySelectorAll('button')).filter(btn => {
             const text = btn.textContent.trim().toLowerCase();
-            return text === 'cancel' || text === '取消' || text.includes('cancel') || text.includes('取消');
+            return text === 'cancel' || text === 'cancel' || text.includes('cancel') || text.includes('cancel');
         });
         
         if (cancelButtons.length > 0) {
@@ -154,8 +154,8 @@ function findMaskEditor() {
         const buttons = element.querySelectorAll('button');
         if (buttons.length >= 2 && element.querySelector('canvas')) {
             const buttonTexts = Array.from(buttons).map(btn => btn.textContent.trim().toLowerCase());
-            if (buttonTexts.some(text => text.includes('cancel') || text.includes('取消')) &&
-                buttonTexts.some(text => text.includes('save') || text.includes('保存'))) {
+            if (buttonTexts.some(text => text.includes('cancel') || text.includes('cancel')) &&
+                buttonTexts.some(text => text.includes('save') || text.includes('save'))) {
                 return element;
             }
         }

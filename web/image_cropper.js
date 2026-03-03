@@ -8,7 +8,7 @@ function createCropperModal() {
     modal.innerHTML = `
         <div class="cropper-container">
             <div class="cropper-header">
-                <h3>图像裁剪</h3>
+                <h3>Image Cropper</h3>
                 <button class="close-button">×</button>
             </div>
             <div class="cropper-content">
@@ -17,8 +17,8 @@ function createCropperModal() {
                     <div class="crop-selection"></div>
                 </div>
                 <div class="cropper-controls">
-                    <button id="apply-crop">应用裁剪</button>
-                    <button id="cancel-crop">取消</button>
+                    <button id="apply-crop">Apply Crop</button>
+                    <button id="cancel-crop">Cancel</button>
                 </div>
             </div>
         </div>
@@ -179,7 +179,7 @@ class ImageCropper {
         this.canvas.addEventListener("mouseup", () => this.endDrawing());
         
         // 添加调试日志
-        console.log("事件监听器已设置:", {
+        console.log("Event listeners set:", {
             closeButton: !!closeButton,
             cancelButton: !!cancelButton,
             applyButton: !!applyButton
@@ -200,7 +200,7 @@ class ImageCropper {
                     })
                 });
             } catch (error) {
-                console.error("发送取消信号失败:", error);
+                console.error("Failed to send cancel signal:", error);
             }
         }
         
@@ -269,7 +269,7 @@ class ImageCropper {
         this.scaleX = canvas.width / displayRect.width;
         this.scaleY = canvas.height / displayRect.height;
         
-        console.log("缩放比例:", {
+        console.log("Scale ratio:", {
             scaleX: this.scaleX,
             scaleY: this.scaleY,
             canvasWidth: canvas.width,
@@ -286,7 +286,7 @@ class ImageCropper {
             !this.selection.style.height ||
             parseInt(this.selection.style.width) <= 0 ||
             parseInt(this.selection.style.height) <= 0) {
-            console.warn("未选择有效的裁剪区域");
+            console.warn("No valid crop area selected");
             this.cleanupAndClose();
             return;
         }
@@ -300,7 +300,7 @@ class ImageCropper {
         let width = rect.width * this.scaleX;
         let height = rect.height * this.scaleY;
 
-        console.log("裁剪参数:", {
+        console.log("Crop parameters:", {
             x, y, width, height,
             originalRect: rect,
             canvasRect: canvasRect
@@ -314,7 +314,7 @@ class ImageCropper {
 
         // 检查最终尺寸是否有效
         if (width <= 0 || height <= 0) {
-            console.error("裁剪区域无效");
+            console.error("Invalid crop area");
             this.cleanupAndClose();
             return;
         }
@@ -333,7 +333,7 @@ class ImageCropper {
                     0, 0, width, height
                 );
             } catch (drawError) {
-                console.error("裁剪绘制失败:", drawError);
+                console.error("Failed to draw cropped image:", drawError);
                 this.cleanupAndClose();
                 return;
             }
@@ -343,12 +343,12 @@ class ImageCropper {
             try {
                 croppedImage = tempCanvas.toDataURL("image/png");
             } catch (dataUrlError) {
-                console.error("图像转换失败:", dataUrlError);
+                console.error("Failed to convert image:", dataUrlError);
                 this.cleanupAndClose();
                 return;
             }
             
-            console.log("准备发送请求，参数:", {
+            console.log("Preparing to send request, parameters:", {
                 node_id: this.currentNodeId,
                 width: Math.round(width),
                 height: Math.round(height),
@@ -373,7 +373,7 @@ class ImageCropper {
             this.cleanupAndClose();
             
         } catch (error) {
-            console.error("裁剪操作失败:", error);
+            console.error("Crop operation failed:", error);
             this.cleanupAndClose();
         }
     }
@@ -485,7 +485,7 @@ app.registerExtension({
                 };
                 
                 // 创建更新按钮
-                const updateButton = this.addWidget("button", "更新种子", null, () => {
+                const updateButton = this.addWidget("button", "Update Seed", null, () => {
                     const mode = seed_modeWidget.value;
                     let newValue = seedWidget.value;
                     

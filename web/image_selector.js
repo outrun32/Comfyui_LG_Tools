@@ -20,11 +20,11 @@ app.registerExtension({
                 this.isChooser = true;
                 this.imageIndex = null;
                 
-                this.confirmButton = this.addWidget("button", "确认选择", "", () => {
+                this.confirmButton = this.addWidget("button", "Confirm Selection", "", () => {
                     this.executeSelection();
                 });
-                
-                this.cancelButton = this.addWidget("button", "取消", "", () => {
+
+                this.cancelButton = this.addWidget("button", "Cancel", "", () => {
                     this.cancelSelection();
                 });
                 
@@ -206,7 +206,7 @@ app.registerExtension({
                         ctx.fillStyle = '#ffffff';
                         ctx.font = '10px Arial';
                         ctx.textAlign = 'left';
-                        ctx.fillText('点击选择', x + 5, y + 14);
+                        ctx.fillText('Click to select', x + 5, y + 14);
                     }
                 }
             };
@@ -464,10 +464,10 @@ app.registerExtension({
                 }).then(response => response.json())
                 .then(data => {
                     if (!data.success) {
-                        console.error(`选择请求失败:`, data.error);
+                        console.error(`Selection request failed:`, data.error);
                     }
                 }).catch(error => {
-                    console.error(`选择请求异常:`, error);
+                    console.error(`Selection request error:`, error);
                 });
 
                 this.isWaitingSelection = false;
@@ -494,10 +494,10 @@ app.registerExtension({
                 }).then(response => response.json())
                 .then(data => {
                     if (!data.success) {
-                        console.error(`取消请求失败:`, data.error);
+                        console.error(`Cancel request failed:`, data.error);
                     }
                 }).catch(error => {
-                    console.error(`取消请求异常:`, error);
+                    console.error(`Cancel request error:`, error);
                 }).finally(() => {
                     this.isCancelling = false;
                     this.update();
@@ -514,29 +514,29 @@ app.registerExtension({
                 const totalCount = this.imgs ? this.imgs.length : 0;
                 
                 if (this.isCancelling) {
-                    this.confirmButton.name = "正在取消...";
+                    this.confirmButton.name = "Cancelling...";
                     this.cancelButton.name = "";
                     this.confirmButton.disabled = true;
                     this.cancelButton.disabled = true;
                 } else if (this.isWaitingSelection) {
                     if (selectedCount > 0) {
-                        this.confirmButton.name = selectedCount > 1 ? 
-                            `确认选择 (${selectedCount}/${totalCount})` : 
-                            "确认选择";
+                        this.confirmButton.name = selectedCount > 1 ?
+                            `Confirm Selection (${selectedCount}/${totalCount})` :
+                            "Confirm Selection";
                         this.confirmButton.disabled = false;
                     } else {
-                        this.confirmButton.name = "请选择图像";
+                        this.confirmButton.name = "Please select image";
                         this.confirmButton.disabled = true;
                     }
-                    this.cancelButton.name = "取消运行";
+                    this.cancelButton.name = "Cancel Run";
                     this.cancelButton.disabled = false;
                 } else {
                     const modeText = {
-                        "always_pause": "等待选择",
-                        "keep_last_selection": "自动使用上次选择",
-                        "passthrough": "自动通过"
-                    }[this.currentMode] || "未知模式";
-                    
+                        "always_pause": "Waiting for selection",
+                        "keep_last_selection": "Auto use last selection",
+                        "passthrough": "Auto passthrough"
+                    }[this.currentMode] || "Unknown mode";
+
                     this.confirmButton.name = modeText;
                     this.cancelButton.name = "";
                     this.confirmButton.disabled = true;

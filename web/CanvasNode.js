@@ -1,32 +1,32 @@
 import { app } from "../../scripts/app.js";
 import { api } from "../../scripts/api.js";
-import { fabric } from "./lib/fabric-slim.min.js";  // 使用精简版fabric.js以提高性能
+import { fabric } from "./lib/fabric-slim.min.js";  // Using slim version of fabric.js for performance
 import { queueManager } from "./queue_shortcut.js";
 
-// 定义常量
+// Define constants
 const CANVAS_SIZE = {
     WIDTH: 420,
     HEIGHT: 200,
-    BOTTOM_MARGIN: 110,  // 节点下沿扩展值
-    RIGHT_MARGIN: 20,  // 节点右沿扩展值
-    CONTROL_PANEL_HEIGHT: 30  // 控制面板高度
+    BOTTOM_MARGIN: 110,  // Bottom margin extension value
+    RIGHT_MARGIN: 20,  // Right margin extension value
+    CONTROL_PANEL_HEIGHT: 30  // Control panel height
 };
 
-// 模块级变量
+// Module-level variables
 const instances = [];
 let eventHandlersInitialized = false;
 let globalUpdateHandler, globalGetStateHandler;
 
-// 模块级函数 - 清理指定节点ID的实例
+// Module-level function - Clean up instance for specified node ID
 function cleanup(nodeId) {
     const index = instances.findIndex(inst => inst.node?.id === nodeId);
     if (index !== -1) {
         const instance = instances[index];
         
-        // 从数组中移除
+        // Remove from array
         instances.splice(index, 1);
-        
-        // 清理核心资源
+
+        // Clean up core resources
         if (instance.canvas) {
             instance.canvas.off();
             instance.canvas.dispose();
@@ -39,12 +39,12 @@ function cleanup(nodeId) {
     return false;
 }
 
-// 模块级函数 - 设置全局事件处理
+// Module-level function - Set up global event handling
 function setupGlobalEventHandling() {
-    // 如果已经设置了全局处理，则不重复设置
+    // Skip if global handlers already initialized
     if (eventHandlersInitialized) return;
-    
-    // 设置全局事件处理函数
+
+    // Set up global event handler functions
     globalUpdateHandler = async (event) => {
         const data = event.detail;
         if (!data || !data.node_id) return;
@@ -73,33 +73,33 @@ function setupGlobalEventHandling() {
         }
     };
     
-    // 添加全局事件监听器
+    // Add global event listeners
     api.addEventListener("fast_canvas_update", globalUpdateHandler);
     api.addEventListener("fast_canvas_get_state", globalGetStateHandler);
-    
+
     eventHandlersInitialized = true;
 }
 class FastCanvas {
     constructor(node, initialSize = null) {
         this.node = node;
-        this.lastCanvasState = null; 
-        
-        // 使用传入的初始尺寸或默认尺寸
+        this.lastCanvasState = null;
+
+        // Use provided initial size or default size
         this.originalSize = initialSize || {
             width: CANVAS_SIZE.WIDTH,
             height: CANVAS_SIZE.HEIGHT
         };
         
-        // 添加到实例数组
+        // Add to instances array
         instances.push(this);
-        
-        // 确保全局事件处理已设置
+
+        // Ensure global event handling is set up
         setupGlobalEventHandling();
-        
-        // 其他初始化代码...
+
+        // Other initialization code...
         this.currentSize = { ...this.originalSize };
         this.maxDisplaySize = 768;
-        // 创建缩放值显示元素
+        // Create scale value display element
         this.scaleText = document.createElement('div');
         this.scaleText.style.cssText = `
             position: absolute;
@@ -131,7 +131,7 @@ class FastCanvas {
                 }
             }
         } catch (e) {
-            console.error('[清理错误]', e);
+            console.error('[Cleanup Error]', e);
         }
     }
 
@@ -139,37 +139,37 @@ class FastCanvas {
         this.canvasContainer = document.createElement('div');
         this.canvasContainer.className = 'fast-canvas-container';
         
-        // 创建 canvas 元素
+        // Create canvas element
         const canvasElement = document.createElement('canvas');
-        
-        // 使用原始尺寸创建画布
+
+        // Create canvas with original size
         this.canvas = new fabric.Canvas(canvasElement, {
             width: this.originalSize.width,
             height: this.originalSize.height,
             preserveObjectStacking: true,
             selection: true
         });
-        // 设置选中框样式
-        this.canvas.selectionColor = 'rgba(0, 123, 255, 0.3)';  // 选中区域填充色
-        this.canvas.selectionBorderColor = '#007bff';  // 选中框边框颜色
-        this.canvas.selectionLineWidth = 2;  // 选中框边框宽度
-        
-        // 设置控制点样式
+        // Set selection box style
+        this.canvas.selectionColor = 'rgba(0, 123, 255, 0.3)';  // Selection area fill color
+        this.canvas.selectionBorderColor = '#007bff';  // Selection box border color
+        this.canvas.selectionLineWidth = 2;  // Selection box border width
+
+        // Set control point style
         fabric.Object.prototype.set({
-            transparentCorners: false,  // 控制点不透明
-            cornerColor: '#007bff',  // 控制点颜色
-            cornerSize: 20,  // 控制点大小
-            cornerStyle: 'circle',  // 控制点形状为圆形
-            cornerStrokeColor: '#ffffff',  // 控制点边框颜色
-            cornerStrokeWidth: 2,  // 控制点边框宽度
-            padding: 5,  // 选中框内边距
-            borderColor: '#007bff',  // 边框颜色
-            borderScaleFactor: 2,  // 边框宽度
-            hasRotatingPoint: true,  // 显示旋转控制点
-            rotatingPointOffset: 30  // 旋转控制点偏移距离
+            transparentCorners: false,  // Control points are opaque
+            cornerColor: '#007bff',  // Control point color
+            cornerSize: 20,  // Control point size
+            cornerStyle: 'circle',  // Control point shape is circle
+            cornerStrokeColor: '#ffffff',  // Control point border color
+            cornerStrokeWidth: 2,  // Control point border width
+            padding: 5,  // Selection box padding
+            borderColor: '#007bff',  // Border color
+            borderScaleFactor: 2,  // Border width
+            hasRotatingPoint: true,  // Show rotation control point
+            rotatingPointOffset: 30  // Rotation control point offset distance
         });
 
-        // 创建默认背景图像
+        // Create default background image
         const defaultBackground = new fabric.Rect({
             width: this.originalSize.width,
             height: this.originalSize.height,
@@ -181,7 +181,7 @@ class FastCanvas {
             excludeFromExport: false 
         });
         
-        // 设置为背景图像
+        // Set as background image
         this.canvas.setBackgroundImage(defaultBackground, () => {
             this.canvas.renderAll();
         });
@@ -190,10 +190,10 @@ class FastCanvas {
             position: relative;
             width: ${this.originalSize.width}px;
             height: ${this.originalSize.height + CANVAS_SIZE.CONTROL_PANEL_HEIGHT}px;
-            background: transparent; // 改为透明背景
+            background: transparent; // Changed to transparent background
         `;
         
-        // 创建画布包装容器
+        // Create canvas wrapper container
         const canvasWrapper = document.createElement('div');
         canvasWrapper.style.cssText = `
             width: 100%;
@@ -203,19 +203,19 @@ class FastCanvas {
         this.canvasContainer.appendChild(canvasWrapper);
         this.canvasContainer.appendChild(this.scaleText);
         
-        // 创建控制面板
+        // Create control panel
         this.controlPanel = new ControlPanel(this.canvas, this.node);
         this.canvasContainer.appendChild(this.controlPanel.getContainer());
         
-        // 初始化状态
+        // Initialize state
         this.layers = new Map();
-        this.background = defaultBackground;  // 保存背景引用
+        this.background = defaultBackground;  // Save background reference
         this.isDragging = false;
         this.isLocked = false;
         this.initContextMenu();
-        // 设置事件监听
+        // Set up event listeners
         this.setupEventListeners();
-        // 设置节点的初始尺寸
+        // Set node's initial size
         this.node.size = [
             this.originalSize.width + CANVAS_SIZE.RIGHT_MARGIN,
             this.originalSize.height + CANVAS_SIZE.CONTROL_PANEL_HEIGHT + CANVAS_SIZE.BOTTOM_MARGIN
@@ -223,7 +223,7 @@ class FastCanvas {
     }
 
     initContextMenu() {
-        // 创建菜单元素
+        // Create menu element
         const menu = document.createElement('div');
         menu.className = 'fast-canvas-context-menu';
         menu.style.cssText = `
@@ -241,21 +241,21 @@ class FastCanvas {
         `;
 
         const menuItems = [
-            { text: '设为背景', action: () => this.setLayerAsBackground() },
+            { text: 'Set as Background', action: () => this.setLayerAsBackground() },
             {
-                text: '变换',
+                text: 'Transform',
                 submenu: [
-                    { text: '水平翻转', action: () => this.flipObject('horizontal') },
-                    { text: '垂直翻转', action: () => this.flipObject('vertical') },
-                    { text: '居中', action: () => this.centerObject('both') },
-                    { text: '水平居中', action: () => this.centerObject('horizontal') },
-                    { text: '垂直居中', action: () => this.centerObject('vertical') }
+                    { text: 'Flip Horizontal', action: () => this.flipObject('horizontal') },
+                    { text: 'Flip Vertical', action: () => this.flipObject('vertical') },
+                    { text: 'Center', action: () => this.centerObject('both') },
+                    { text: 'Center Horizontal', action: () => this.centerObject('horizontal') },
+                    { text: 'Center Vertical', action: () => this.centerObject('vertical') }
                 ]
             },
             {
-                text: '调整图层',
+                text: 'Arrange Layer',
                 submenu: [
-                    { text: '上移一层', action: () => {
+                    { text: 'Bring Forward', action: () => {
                         const obj = this.canvas.getActiveObject();
                         if (obj) {
                             obj.bringForward();
@@ -263,7 +263,7 @@ class FastCanvas {
 
                         }
                     }},
-                    { text: '下移一层', action: () => {
+                    { text: 'Send Backward', action: () => {
                         const obj = this.canvas.getActiveObject();
                         if (obj) {
                             obj.sendBackwards();
@@ -271,7 +271,7 @@ class FastCanvas {
 
                         }
                     }},
-                    { text: '置于顶层', action: () => {
+                    { text: 'Bring to Front', action: () => {
                         const obj = this.canvas.getActiveObject();
                         if (obj) {
                             obj.bringToFront();
@@ -279,7 +279,7 @@ class FastCanvas {
 
                         }
                     }},
-                    { text: '置于底层', action: () => {
+                    { text: 'Send to Back', action: () => {
                         const obj = this.canvas.getActiveObject();
                         if (obj) {
                             obj.sendToBack();
@@ -290,25 +290,26 @@ class FastCanvas {
                 ]
             },
             {
-                text: '混合模式',
+                text: 'Blend Mode',
                 submenu: [
-                    { text: '正常 (source-over)', action: () => this.setObjectCompositeMode('source-over') },
-                    { text: '正片叠底 (multiply)', action: () => this.setObjectCompositeMode('multiply') },
-                    { text: '滤色 (screen)', action: () => this.setObjectCompositeMode('screen') },
-                    { text: '叠加 (overlay)', action: () => this.setObjectCompositeMode('overlay') },
-                    { text: '变亮 (lighten)', action: () => this.setObjectCompositeMode('lighten') },
-                    { text: '变暗 (darken)', action: () => this.setObjectCompositeMode('darken') },
-                    { text: '强光 (hard-light)', action: () => this.setObjectCompositeMode('hard-light') },
-                    { text: '柔光 (soft-light)', action: () => this.setObjectCompositeMode('soft-light') },
-                    { text: '差值 (difference)', action: () => this.setObjectCompositeMode('difference') },
-                    { text: '排除 (exclusion)', action: () => this.setObjectCompositeMode('exclusion') },
+                    { text: 'Normal (source-over)', action: () => this.setObjectCompositeMode('source-over') },
+                    { text: 'Multiply', action: () => this.setObjectCompositeMode('multiply') },
+                    { text: 'Screen', action: () => this.setObjectCompositeMode('screen') },
+                    { text: 'Overlay', action: () => this.setObjectCompositeMode('overlay') },
+                    { text: 'Lighten', action: () => this.setObjectCompositeMode('lighten') },
+                    { text: 'Darken', action: () => this.setObjectCompositeMode('darken') },
+                    { text: 'Hard Light', action: () => this.setObjectCompositeMode('hard-light') },
+                    { text: 'Soft Light', action: () => this.setObjectCompositeMode('soft-light') },
+                    { text: 'Difference', action: () => this.setObjectCompositeMode('difference') },
+                    { text: 'Exclusion', action: () => this.setObjectCompositeMode('exclusion') },
                 ]
             },
-            { text: '调整透明度', action: () => this.showOpacityDialog() },
-            { text: '恢复原尺寸', action: () => this.resetObjectSize() }
+            { text: 'Adjust Opacity', action: () => this.showOpacityDialog() },
+            { text: 'Reset to Original Size', action: () => this.resetObjectSize() }
         ];
-        
-        // 创建菜单项
+
+
+        // Create menu items
         menuItems.forEach(item => {
             const menuItem = document.createElement('div');
             menuItem.textContent = item.text;
@@ -324,7 +325,7 @@ class FastCanvas {
             `;
         
             if (item.submenu) {
-                // 添加子菜单指示器
+                // Add submenu indicator
                 menuItem.style.paddingRight = '25px';
                 const arrow = document.createElement('span');
                 arrow.textContent = '▶';
@@ -337,7 +338,7 @@ class FastCanvas {
                 `;
                 menuItem.appendChild(arrow);
         
-                // 创建子菜单
+                // Create submenu
                 const submenu = document.createElement('div');
                 submenu.style.cssText = `
                     position: absolute;
@@ -352,7 +353,7 @@ class FastCanvas {
                     box-shadow: 0 4px 12px rgba(0,0,0,0.3);
                 `;
         
-                // 创建子菜单项
+                // Create submenu items
                 item.submenu.forEach(subItem => {
                     const subMenuItem = document.createElement('div');
                     subMenuItem.textContent = subItem.text;
@@ -375,7 +376,7 @@ class FastCanvas {
                     submenu.appendChild(subMenuItem);
                 });
         
-                // 显示/隐藏子菜单
+                // Show/hide submenu
                 menuItem.onmouseover = () => {
                     submenu.style.display = 'block';
                     menuItem.style.backgroundColor = '#3f3f3f';
@@ -399,7 +400,7 @@ class FastCanvas {
         
                 menuItem.appendChild(submenu);
             } else {
-                // 普通菜单项的鼠标悬停效果
+                // Mouse hover effect for regular menu items
                 menuItem.onmouseover = () => menuItem.style.backgroundColor = '#3f3f3f';
                 menuItem.onmouseout = () => menuItem.style.backgroundColor = '';
                 menuItem.onclick = (e) => {
@@ -411,7 +412,7 @@ class FastCanvas {
         
             menu.appendChild(menuItem);
         });
-        // 在画布容器上监听右键事件
+        // Listen for right-click events on canvas container
         this.canvasContainer.addEventListener('contextmenu', (e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -422,7 +423,7 @@ class FastCanvas {
                 menu.style.top = `${e.pageY}px`;
                 menu.style.display = 'block';
                 
-                // 添加一次性点击事件监听器
+                // Add one-time click event listener
                 const closeMenu = (e) => {
                     if (!menu.contains(e.target)) {
                         menu.style.display = 'none';
@@ -431,7 +432,7 @@ class FastCanvas {
                     }
                 };
                 
-                // 延迟添加事件监听器，避免立即触发
+                // Delay adding event listener to avoid immediate trigger
                 setTimeout(() => {
                     document.addEventListener('click', closeMenu);
                     document.addEventListener('contextmenu', closeMenu);
@@ -441,7 +442,7 @@ class FastCanvas {
             return false;
         }, true);
 
-        // 阻止菜单内右键点击
+        // Prevent right-click within menu
         menu.addEventListener('contextmenu', (e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -451,7 +452,7 @@ class FastCanvas {
         document.body.appendChild(menu);
     }
 
-    // 菜单操作方法
+    // Menu operation methods
     flipObject(direction) {
         const activeObject = this.canvas.getActiveObject();
         if (activeObject) {
@@ -482,15 +483,15 @@ class FastCanvas {
     resetObjectSize() {
         const activeObject = this.canvas.getActiveObject();
         if (activeObject && activeObject.originalWidth && activeObject.originalHeight) {
-            // 重置对象到原始尺寸
+            // Reset object to original size
             const originalWidth = activeObject.originalWidth;
             const originalHeight = activeObject.originalHeight;
-            
-            // 计算比例
+
+            // Calculate ratio
             const scaleX = originalWidth / activeObject.width;
             const scaleY = originalHeight / activeObject.height;
-            
-            // 应用变换
+
+            // Apply transformation
             activeObject.set({
                 scaleX: 1,
                 scaleY: 1,
@@ -503,7 +504,7 @@ class FastCanvas {
         }
     }
     
-    // 设置图层混合模式
+    // Set layer blend mode
     setObjectCompositeMode(mode) {
         const activeObject = this.canvas.getActiveObject();
         if (activeObject) {
@@ -515,12 +516,12 @@ class FastCanvas {
         }
     }
     
-    // 显示透明度调整对话框
+    // Show opacity adjustment dialog
     showOpacityDialog() {
         const activeObject = this.canvas.getActiveObject();
         if (!activeObject) return;
-        
-        // 创建对话框元素
+
+        // Create dialog element
         const dialog = document.createElement('div');
         dialog.className = 'opacity-dialog';
         dialog.style.cssText = `
@@ -538,7 +539,7 @@ class FastCanvas {
             min-width: 250px;
         `;
         
-        // 创建滑动条
+        // Create slider
         const slider = document.createElement('input');
         slider.type = 'range';
         slider.min = '0';
@@ -549,7 +550,7 @@ class FastCanvas {
             margin: 5px 0;
         `;
         
-        // 当前透明度值显示
+        // Display current opacity value
         const valueDisplay = document.createElement('div');
         valueDisplay.style.cssText = `
             margin: 5px 0;
@@ -558,7 +559,7 @@ class FastCanvas {
         `;
         valueDisplay.textContent = `${Math.round(activeObject.opacity * 100)}%`;
         
-        // 滑动时实时更新透明度
+        // Update opacity in real-time while sliding
         slider.addEventListener('input', (e) => {
             const opacity = parseInt(e.target.value) / 100;
             activeObject.set({ opacity });
@@ -566,7 +567,7 @@ class FastCanvas {
             this.canvas.renderAll();
         });
         
-        // 按钮容器
+        // Button container
         const buttonContainer = document.createElement('div');
         buttonContainer.style.cssText = `
             display: flex;
@@ -574,45 +575,45 @@ class FastCanvas {
             margin-top: 10px;
         `;
         
-        // 关闭对话框函数
+        // Close dialog function
         const closeDialog = () => {
             activeObject.set({ opacity: activeObject._originalOpacity });
             try {
                 document.body.removeChild(dialog);
-                // 移除ESC键监听器
+                // Remove ESC key listener
                 document.removeEventListener('keydown', handleKeyDown);
             } catch (error) {
-                console.log("对话框已被移除");
+                console.log("Dialog has been removed");
             }
             this.canvas.renderAll();
         };
         
-        // 应用更改并关闭对话框
+        // Apply changes and close dialog
         const applyChanges = () => {
             try {
                 document.body.removeChild(dialog);
-                // 移除所有事件监听器
+                // Remove all event listeners
                 document.removeEventListener('keydown', handleKeyDown);
                 document.removeEventListener('mousedown', handleClickOutside);
             } catch (error) {
-                console.log("对话框已被移除");
+                console.log("Dialog has been removed");
             }
 
         };
         
-        // ESC键监听器
+        // ESC key listener
         const handleKeyDown = (e) => {
             if (e.key === 'Escape') {
                 closeDialog();
             }
         };
         
-        // 添加ESC键监听
+        // Add ESC key listener
         document.addEventListener('keydown', handleKeyDown);
-        
-        // 取消按钮
+
+        // Cancel button
         const cancelButton = document.createElement('button');
-        cancelButton.textContent = '取消';
+        cancelButton.textContent = 'Cancel';
         cancelButton.style.cssText = `
             background: #444;
             border: none;
@@ -623,9 +624,9 @@ class FastCanvas {
         `;
         cancelButton.onclick = closeDialog;
         
-        // 确认按钮
+        // Confirm button
         const confirmButton = document.createElement('button');
-        confirmButton.textContent = '确认';
+        confirmButton.textContent = 'Confirm';
         confirmButton.style.cssText = `
             background: #007bff;
             border: none;
@@ -636,23 +637,23 @@ class FastCanvas {
         `;
         confirmButton.onclick = applyChanges;
         
-        // 添加所有元素
+        // Add all elements
         dialog.appendChild(valueDisplay);
         dialog.appendChild(slider);
         buttonContainer.appendChild(cancelButton);
         buttonContainer.appendChild(confirmButton);
         dialog.appendChild(buttonContainer);
         
-        // 保存原始透明度以便取消时恢复
+        // Save original opacity for restore on cancel
         activeObject._originalOpacity = activeObject.opacity;
-        
-        // 添加到文档
+
+        // Add to document
         document.body.appendChild(dialog);
-        
-        // 在函数内部创建并存储mousedown监听器的引用
+
+        // Create and store mousedown listener reference inside function
         let handleClickOutside;
 
-        // 定义并存储监听器引用
+        // Define and store listener reference
         handleClickOutside = function(e) {
             if (!dialog.contains(e.target)) {
                 closeDialog();
@@ -660,60 +661,60 @@ class FastCanvas {
             }
         };
 
-        // 添加监听器
+        // Add listener
         document.addEventListener('mousedown', handleClickOutside);
     }
 
     updateContainerSize(width, height) {
-        // 更新画布容器尺寸为缩放后的显示尺寸
+        // Update canvas container size to scaled display size
         this.canvasContainer.style.width = `${width}px`;
         this.canvasContainer.style.height = `${height + CANVAS_SIZE.CONTROL_PANEL_HEIGHT}px`;
-        
-        // 确保控制面板始终在最上层
-        this.canvasContainer.style.position = 'relative'; // 添加这行
-        this.canvasContainer.style.zIndex = '1'; // 添加这行
-        
-        // 更新控制面板尺寸
+
+        // Ensure control panel always stays on top
+        this.canvasContainer.style.position = 'relative'; // Add this line
+        this.canvasContainer.style.zIndex = '1'; // Add this line
+
+        // Update control panel size
         this.controlPanel.updateSize(width);
-        
-        // 更新节点的 DOM 元素尺寸
+
+        // Update node's DOM element size
         if (this.node.canvasElement) {
             this.node.canvasElement.style.width = `${width}px`;
             this.node.canvasElement.style.height = `${height + CANVAS_SIZE.CONTROL_PANEL_HEIGHT}px`;
         }
         
-        // 更新节点尺寸
+        // Update node size
         this.node.size = [
-            width + CANVAS_SIZE.RIGHT_MARGIN, 
+            width + CANVAS_SIZE.RIGHT_MARGIN,
             height + CANVAS_SIZE.BOTTOM_MARGIN + CANVAS_SIZE.CONTROL_PANEL_HEIGHT
         ];
-        
-        // 强制更新节点
+
+        // Force update node
         this.node.setDirtyCanvas(true, true);
     }
 
     updateCanvasSize(displayWidth, displayHeight) {
-        // 1. 计算缩放比例
+        // 1. Calculate scale ratio
         const scaleX = displayWidth / this.originalSize.width;
         const scaleY = displayHeight / this.originalSize.height;
-        const scale = Math.min(scaleX, scaleY);  // 使用统一的缩放比例
-        
-        // 2. 设置画布为原始尺寸
+        const scale = Math.min(scaleX, scaleY);  // Use uniform scale ratio
+
+        // 2. Set canvas to original size
         this.canvas.setDimensions({
             width: this.originalSize.width,
             height: this.originalSize.height
         });
         
-        // 3. 更新画布包装器的CSS transform
+        // 3. Update canvas wrapper's CSS transform
         this.canvas.wrapperEl.style.transform = `scale(${scale})`;
         this.canvas.wrapperEl.style.transformOrigin = 'top left';
         this.canvas.wrapperEl.style.width = `${displayWidth}px`;
         this.canvas.wrapperEl.style.height = `${displayHeight}px`;
-        
-        // 4. 同步Fabric.js的缩放
-        this.canvas.setZoom(1);  // 重置zoom，因为我们使用CSS缩放
-        
-        // 5. 如果有背景图片，确保它使用原始尺寸
+
+        // 4. Sync Fabric.js zoom
+        this.canvas.setZoom(1);  // Reset zoom because we use CSS scaling
+
+        // 5. If background image exists, ensure it uses original size
         if (this.canvas.backgroundImage) {
             this.canvas.backgroundImage.set({
                 width: this.originalSize.width,
@@ -725,20 +726,20 @@ class FastCanvas {
                 originX: 'left',
                 originY: 'top'
             });
-            // 强制更新背景坐标
+            // Force update background coordinates
             this.canvas.backgroundImage.setCoords();
         }
-        
-        // 6. 更新容器尺寸
+
+        // 6. Update container size
         this.updateContainerSize(displayWidth, displayHeight);
-        
-        // 7. 重新渲染
+
+        // 7. Re-render
         this.canvas.renderAll();
-        
-        // 8. 更新事件监听区域
+
+        // 8. Update event listener area
         this.canvas.calcOffset();
     }
-    // 修改 updateDisplayScale 方法
+    // Modify updateDisplayScale method
     updateDisplayScale(maxSize) {
         this.maxDisplaySize = maxSize;
         if (this.originalSize?.width && this.originalSize?.height) {
@@ -748,15 +749,15 @@ class FastCanvas {
                 maxSize
             );
             
-            // 更新显示尺寸，但保持画布原始尺寸
+            // Update display size but keep canvas original size
             this.updateCanvasSize(scaledSize.width, scaledSize.height);
-            
-            // 确保画布完全重置和更新
+
+            // Ensure canvas is fully reset and updated
             this.canvas.requestRenderAll();
         }
     }
 
-    // 计算缩放后的尺寸
+    // Calculate scaled size
     calculateScaledSize(width, height, maxSize) {
         if (width <= maxSize && height <= maxSize) {
             return { width, height };
@@ -779,16 +780,16 @@ class FastCanvas {
 
 
     setupPaste() {
-        // 移除可能存在的旧事件监听器
+        // Remove possibly existing old event listeners
         if (this._pasteHandler) {
             document.removeEventListener('paste', this._pasteHandler);
         }
     
         let canvasActive = false;
     
-        // 创建新的粘贴处理函数
+        // Create new paste handler function
         this._pasteHandler = async (e) => {
-            if (!canvasActive) return;  // 如果画布不是活动状态，不处理粘贴
+            if (!canvasActive) return;  // If canvas is not active, don't handle paste
     
             const items = (e.clipboardData || e.originalEvent.clipboardData).items;
             for (const item of items) {
@@ -802,21 +803,21 @@ class FastCanvas {
             }
         };
     
-        // 添加内部复制功能
+        // Add internal copy functionality
         document.addEventListener('keydown', (e) => {
-            // 检查是否在画布区域内且画布处于活动状态
+            // Check if within canvas area and canvas is active
             const activeElement = document.activeElement;
             const isInputActive = activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA';
             if (isInputActive || !canvasActive) return;
     
-            // 复制 (Ctrl+C)
+            // Copy (Ctrl+C)
             if (e.ctrlKey && e.key === 'c') {
                 const activeObjects = this.canvas.getActiveObjects();
                 if (activeObjects.length > 0) {
                     activeObjects.forEach(obj => {
-                        // 创建图层的副本
+                        // Create layer copy
                         obj.clone((cloned) => {
-                            // 生成新的图层ID
+                            // Generate new layer ID
                             const newId = this.controlPanel.maxLayerId + 1;
                             this.controlPanel.maxLayerId = newId;
     
@@ -826,7 +827,7 @@ class FastCanvas {
                                 id: newId
                             });
                             
-                            // 添加到画布和图层管理
+                            // Add to canvas and layer management
                             this.canvas.add(cloned);
                             this.layers.set(newId, cloned);
                         });
@@ -839,29 +840,29 @@ class FastCanvas {
             }
         });
     
-        // 添加新的事件监听器到 document
+        // Add new event listener to document
         document.addEventListener('paste', this._pasteHandler, true);
-    
-        // 点击画布时设置活动状态
+
+        // Set active state when clicking canvas
         this.canvasContainer.addEventListener('mousedown', () => {
             canvasActive = true;
         });
-    
-        // 点击其他地方时取消活动状态
+
+        // Cancel active state when clicking elsewhere
         document.addEventListener('mousedown', (e) => {
             if (!this.canvasContainer.contains(e.target)) {
                 canvasActive = false;
             }
         });
-    
-        // 清理函数
+
+        // Cleanup function
         this.cleanup = () => {
             document.removeEventListener('paste', this._pasteHandler, true);
         };
     }
 
     setupDragAndDrop() {
-        // 防止浏览器默认的拖放行为
+        // Prevent browser's default drag-and-drop behavior
         this.canvasContainer.addEventListener('dragenter', (e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -896,11 +897,11 @@ class FastCanvas {
         });
 
 
-        // 添加样式
+        // Add style
         const style = document.createElement('style');
         style.textContent = `
             .fast-canvas-container.drag-over::after {
-                content: '拖放图片到这里';
+                content: 'Drop image here';
                 position: absolute;
                 top: 0;
                 left: 0;
@@ -934,16 +935,16 @@ class FastCanvas {
             reader.readAsDataURL(file);
             const imageData = await imageLoadPromise;
     
-            // 统一按图层方式加载图片
+            // Load image uniformly as layer
             fabric.Image.fromURL(imageData, (img) => {
                 if (options.center && options.autoScale) {
-                    // 计算适合画布的缩放比例
+                    // Calculate scale ratio to fit canvas
                     const scale = Math.min(
                         this.canvas.width / img.width,
                         this.canvas.height / img.height
                     );
-                    
-                    // 计算居中位置
+
+                    // Calculate centered position
                     const canvasCenter = this.canvas.getCenter();
                     img.set({
                         scaleX: scale,
@@ -954,7 +955,7 @@ class FastCanvas {
                         originY: 'center'
                     });
                 } else {
-                    // 不进行居中和缩放，使用原始尺寸和位置
+                    // Don't center or scale, use original size and position
                     img.set({
                         left: 0,
                         top: 0,
@@ -963,7 +964,7 @@ class FastCanvas {
                     });
                 }
 
-                // 添加到画布并更新图层ID
+                // Add to canvas and update layer ID
                 this.canvas.add(img);
                 this.controlPanel.updateLayerIds();
                 
@@ -973,8 +974,8 @@ class FastCanvas {
             });
     
         } catch (error) {
-            console.error('图片上传失败:', error);
-            alert('图片上传失败，请重试');
+            console.error('Image upload failed:', error);
+            alert('Image upload failed, please try again');
         }
     }
 
@@ -982,43 +983,43 @@ class FastCanvas {
     
     setupEventListeners() {
 
-        // 添加一个计算相对缩放值的辅助方法
+        // Add helper method to calculate relative scale value
         const getRelativeScale = (obj) => {
             const backgroundImage = this.canvas.backgroundImage;
             if (!backgroundImage) return obj.scaleX;
-            
-            // 计算背景图片的缩放比例
+
+            // Calculate background image scale ratio
             const bgScaleRatio = backgroundImage.width / backgroundImage.getScaledWidth();
-            // 计算相对于背景图片的实际缩放比例
+            // Calculate actual scale ratio relative to background image
             return Number((obj.scaleX * bgScaleRatio).toFixed(2));
         };
-        // 创建一个绑定到当前实例的事件处理函数
+        // Create event handler function bound to current instance
         this._handleKeyDown = (e) => {
-            // 首先检查画布和节点是否还存在
+            // First check if canvas and node still exist
             if (!this.canvas || !this.node) {
-                // 如果画布或节点不存在，移除事件监听器
+                // If canvas or node doesn't exist, remove event listener
                 document.removeEventListener('keydown', this._handleKeyDown);
                 return;
             }
 
-            // 检查是否有选中的对象且当前焦点不在输入框上
+            // Check if there's a selected object and focus is not on input field
             if (this.canvas.getActiveObject() && 
                 document.activeElement.tagName !== 'INPUT' && 
                 document.activeElement.tagName !== 'TEXTAREA') {
                 
-                // Delete 键或 Backspace 键
+                // Delete key or Backspace key
                 if (e.key === 'Delete' || e.key === 'Backspace') {
                     e.preventDefault();
                     
                     const activeObject = this.canvas.getActiveObject();
-                    // 确保不是背景图片
+                    // Ensure it's not the background image
                     if (activeObject !== this.canvas.backgroundImage) {
-                        // 如果是图层，从图层映射中移除
+                        // If it's a layer, remove from layer mapping
                         if (activeObject.id) {
                             this.layers.delete(activeObject.id);
                         }
                         
-                        // 从画布中移除
+                        // Remove from canvas
                         this.canvas.remove(activeObject);
                         this.canvas.renderAll();
                         
@@ -1028,7 +1029,7 @@ class FastCanvas {
             }
         };
 
-        // 添加滚轮缩放
+        // Add mouse wheel zoom
         this.canvas.on('mouse:wheel', (opt) => {
             const delta = opt.e.deltaY;
             const activeObject = this.canvas.getActiveObject();
@@ -1037,18 +1038,18 @@ class FastCanvas {
                 let scale = activeObject.scaleX;
 
                 if (delta < 0) {
-                    scale *= 1.1; // 放大
+                    scale *= 1.1; // Zoom in
                 } else {
-                    scale *= 0.9; // 缩小
+                    scale *= 0.9; // Zoom out
                 }
 
-                // 限制缩放范围
+                // Limit zoom range
                 scale = Math.min(Math.max(scale, 0.01), 10);
 
                 activeObject.scale(scale);
                 this.canvas.renderAll();
 
-                // 更新缩放值显示
+                // Update scale value display
                 const relativeScale = getRelativeScale(activeObject);
                 this.scaleText.innerHTML = `scale: ${relativeScale}×`;
                 this.scaleText.style.display = 'block';
@@ -1064,7 +1065,7 @@ class FastCanvas {
         if (!canvasData) return;
 
         try {
-            // 先获取当前所有图层的状态（只在没有传入transformData时保留状态）
+            // First get current state of all layers (only preserve state when transformData not provided)
             const currentLayers = !transformData ? this.canvas.getObjects().map(obj => ({
                 object: obj,
                 state: {
@@ -1078,20 +1079,20 @@ class FastCanvas {
                 }
             })) : [];
     
-            // 先设置背景
+            // First set background
             if (canvasData.background) {
                 await this.setBackground(canvasData.background);
             }
     
-            // 再更新图层
+            // Then update layers
             if (canvasData.layers) {
                 await this.updateLayers(canvasData.layers);
                 
-                // 如果有transformData，应用变换数据
+                // If transformData exists, apply transform data
                 if (transformData) {
                     this.applyTransformData(transformData);
                 } else {
-                    // 否则恢复图层状态
+                    // Otherwise restore layer state
                     currentLayers.forEach(({object, state}) => {
                         const existingObj = this.canvas.getObjects().find(obj => obj.id === object.id);
                         if (existingObj) {
@@ -1101,7 +1102,7 @@ class FastCanvas {
                 }
             }
     
-            // 确保画布完全渲染
+            // Ensure canvas is fully rendered
             await new Promise(resolve => {
                 requestAnimationFrame(() => {
                     this.canvas.renderAll();
@@ -1114,50 +1115,50 @@ class FastCanvas {
         }
     }
 
-    // 应用变换数据到图层
+    // Apply transform data to layers
     applyTransformData(transformData) {
         if (!transformData) return;
         
         try {
-            // 遍历transform_data中的每个图层
+            // Iterate through each layer in transform_data
             for (const [layerId, trans] of Object.entries(transformData)) {
-                // 跳过background
+                // Skip background
                 if (layerId === 'background') continue;
                 
-                // 查找对应的图层对象
+                // Find corresponding layer object
                 const layerObj = this.layers.get(parseInt(layerId));
                 if (!layerObj) {
                     console.warn(`[FastCanvas] Layer ${layerId} not found`);
                     continue;
                 }
                 
-                // 应用变换参数
+                // Apply transform parameters
                 const updates = {
                     originX: 'center',
                     originY: 'center'
                 };
                 
-                // 设置中心点位置
+                // Set center point position
                 if (trans.centerX !== undefined) updates.left = trans.centerX;
                 if (trans.centerY !== undefined) updates.top = trans.centerY;
                 
-                // 缩放
+                // Scale
                 if (trans.scaleX !== undefined) updates.scaleX = trans.scaleX;
                 if (trans.scaleY !== undefined) updates.scaleY = trans.scaleY;
                 
-                // 旋转（注意：fabric.js使用正角度，transform_data可能需要调整）
+                // Rotation (note: fabric.js uses positive angles, transform_data may need adjustment)
                 if (trans.angle !== undefined) updates.angle = trans.angle;
                 
-                // 翻转
+                // Flip
                 if (trans.flipX !== undefined) updates.flipX = trans.flipX;
                 if (trans.flipY !== undefined) updates.flipY = trans.flipY;
                 
-                // 应用所有变换
+                // Apply all transformations
                 layerObj.set(updates);
-                layerObj.setCoords(); // 更新对象坐标
+                layerObj.setCoords(); // Update object coordinates
             }
             
-            // 渲染画布
+            // Render canvas
             this.canvas.renderAll();
             
             console.log('[FastCanvas] Applied transform data to layers');
@@ -1166,7 +1167,7 @@ class FastCanvas {
         }
     }
 
-    // 添加一个通用的图像加载函数
+    // Add a generic image loading function
     loadImage(imageUrl, timeout = 5000) {
         return new Promise((resolve, reject) => {
             const timeoutId = setTimeout(() => {
@@ -1187,7 +1188,7 @@ class FastCanvas {
                     clearTimeout(timeoutId);
                     reject(error);
                 },
-                { crossOrigin: 'anonymous' }  // 添加跨域支持
+                { crossOrigin: 'anonymous' }  // Add CORS support
             );
         });
     }
@@ -1196,16 +1197,16 @@ class FastCanvas {
         const activeObject = this.canvas.getActiveObject();
         if (!activeObject) return;
     
-        // 移除当前图层
+        // Remove current layer
         this.canvas.remove(activeObject);
-        // 移除图层ID
+        // Remove layer ID
         this.controlPanel.removeLayerId(activeObject);
-        // 准备背景数据
+        // Prepare background data
         const backgroundData = {
             image: activeObject.getSrc()
         };
     
-        // 使用现有的 setBackground 方法设置背景
+        // Use existing setBackground method to set background
         this.setBackground(backgroundData);
     }
 
@@ -1217,7 +1218,7 @@ class FastCanvas {
         try {
             const img = await this.loadImage(backgroundData.image);
             
-            // 保存当前所有图层的状态
+            // Save current state of all layers
             const layerStates = this.canvas.getObjects().map(obj => ({
                 object: obj,
                 state: {
@@ -1229,26 +1230,26 @@ class FastCanvas {
                 }
             }));
             
-            // 保存原始尺寸
+            // Save original size
             this.originalSize = {
                 width: img.width,
                 height: img.height
             };
             
-            // 计算显示尺寸
+            // Calculate display size
             const scaledSize = this.calculateScaledSize(
                 img.width, 
                 img.height, 
                 this.maxDisplaySize
             );
     
-            // 设置画布尺寸为原始尺寸
+            // Set canvas size to original size
             this.canvas.setDimensions({
                 width: this.originalSize.width,
                 height: this.originalSize.height
             });
     
-            // 设置背景图片属性
+            // Set background image properties
             img.set({
                 scaleX: 1,
                 scaleY: 1,
@@ -1260,15 +1261,15 @@ class FastCanvas {
                 originY: 'top'
             });
     
-            // 设置CSS缩放
+            // Set CSS scaling
             const scale = scaledSize.width / this.originalSize.width;
             this.canvas.wrapperEl.style.transform = `scale(${scale})`;
             this.canvas.wrapperEl.style.transformOrigin = 'top left';
             
-            // 更新容器尺寸
+            // Update container size
             this.updateContainerSize(scaledSize.width, scaledSize.height);
     
-            // 更新尺寸输入框
+            // Update size input fields
             if (this.node?.sizeOverlay?.updateSizeInputs) {
                 this.node.sizeOverlay.updateSizeInputs(
                     this.originalSize.width,
@@ -1276,10 +1277,10 @@ class FastCanvas {
                 );
             }
     
-            // 直接设置背景图片
+            // Directly set background image
             return new Promise((resolve) => {
                 this.canvas.setBackgroundImage(img, () => {
-                    // 恢复所有图层的状态
+                    // Restore all layer states
                     layerStates.forEach(({object, state}) => {
                         object.set(state);
                     });
@@ -1305,13 +1306,13 @@ class FastCanvas {
                     return;
                 }
     
-                // 计算适合画布的缩放比例
+                // Calculate scale ratio to fit canvas
                 const scale = Math.min(
                     this.canvas.width / img.width,
                     this.canvas.height / img.height
                 );
     
-                // 计算居中位置
+                // Calculate centered position
                 const centerX = (this.canvas.width - img.width * scale) / 2;
                 const centerY = (this.canvas.height - img.height * scale) / 2;
     
@@ -1570,7 +1571,7 @@ class FastCanvas {
 
     async sendCanvasState() {
         if (!this.canvas || !this.canvas.contextContainer) {
-            console.log('[FastCanvas] 画布或上下文不存在，跳过状态发送');
+            console.log('[FastCanvas] Canvas or context does not exist, skipping state transmission');
             return;
         }
     
@@ -1698,12 +1699,12 @@ class FastCanvas {
                 body: JSON.stringify(data)
             });
     
-            console.log('[FastCanvas] 数据发送成功，服务器响应:', response);
+            console.log('[FastCanvas] Data sent successfully, server response:', response);
             
             await new Promise(resolve => setTimeout(resolve, 200));
     
         } catch (error) {
-            console.error('[FastCanvas] 更新画布状态失败:', error);
+            console.error('[FastCanvas] Failed to update canvas state:', error);
             throw error;
         }
     }
@@ -1978,7 +1979,7 @@ class ControlPanel {
         `;
 
         const buttonText = document.createElement('span');
-        buttonText.textContent = '图层';
+        buttonText.textContent = 'Layer';
         button.appendChild(buttonText);
 
         const arrow = document.createElement('span');
@@ -2040,15 +2041,15 @@ class ControlPanel {
         }
 
         // 更新按钮文本
-        this.layerButtonText.textContent = this.currentLayerId ? 
-            `图层 ${this.currentLayerId}` : '图层';
+        this.layerButtonText.textContent = this.currentLayerId ?
+            `Layer ${this.currentLayerId}` : 'Layer';
 
         // 创建下拉选项
         layers.forEach(layer => {
             if (layer.id !== this.currentLayerId) {
                 const option = document.createElement('div');
                 option.className = 'layer-option';
-                option.textContent = `图层 ${layer.id}`;
+                option.textContent = `Layer ${layer.id}`;
                 option.style.cssText = `
                     padding: 5px 10px;
                     cursor: pointer;
@@ -2090,7 +2091,7 @@ class ControlPanel {
         `;
 
         const title = document.createElement('h3');
-        title.textContent = '设置';
+        title.textContent = 'Settings';
         title.style.cssText = `
             margin: 0 0 20px 0;
             font-size: 16px;
@@ -2105,15 +2106,15 @@ class ControlPanel {
         `;
 
         // 窗口最大尺寸设置项
-        const maxSizeInput = this.createNumberInput('最大尺寸', 1024, (e) => {
+        const maxSizeInput = this.createNumberInput('Max Size', 1024, (e) => {
             const maxSize = parseInt(e.target.value);
             if (maxSize > 0) {
                 this.node.canvasInstance.updateDisplayScale(maxSize);
             }
         });
         const maxSizeItem = this.createSettingItem(
-            '窗口最大尺寸:', 
-            '限制画布显示尺寸',
+            'Window Max Size:',
+            'Limit canvas display size',
             maxSizeInput
         );
 
@@ -2125,11 +2126,11 @@ class ControlPanel {
             margin-top: 20px;
         `;
 
-        const saveButton = this.createButton('保存', () => {
+        const saveButton = this.createButton('Save', () => {
             dialog.close();
         });
 
-        const cancelButton = this.createButton('取消', () => {
+        const cancelButton = this.createButton('Cancel', () => {
             dialog.close();
         });
 
@@ -2233,7 +2234,7 @@ class ControlPanel {
             background-color: #353535;
             padding: 10px;
             display: none;
-            flex-wrap: wrap;
+            flex-direction: column;
             gap: 10px;
             border-top: 1px solid #666;
             border-radius: 8px;
@@ -2241,10 +2242,55 @@ class ControlPanel {
             box-sizing: border-box;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         `;
-        
+
+        const panelHeader = document.createElement('div');
+        panelHeader.style.cssText = `
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #555;
+        `;
+
+        const panelTitle = document.createElement('span');
+        panelTitle.textContent = 'Text Layer';
+        panelTitle.style.cssText = `
+            color: #ccc;
+            font-size: 13px;
+            font-weight: bold;
+        `;
+
+        const panelCloseBtn = document.createElement('button');
+        panelCloseBtn.textContent = '×';
+        panelCloseBtn.title = 'Close text panel';
+        panelCloseBtn.style.cssText = `
+            background: none;
+            border: none;
+            color: #aaa;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 0 4px;
+            line-height: 1;
+        `;
+        panelCloseBtn.onmouseover = () => { panelCloseBtn.style.color = '#fff'; };
+        panelCloseBtn.onmouseout  = () => { panelCloseBtn.style.color = '#aaa'; };
+        panelCloseBtn.onclick = () => this.toggleTextPanel();
+
+        panelHeader.appendChild(panelTitle);
+        panelHeader.appendChild(panelCloseBtn);
+        panel.appendChild(panelHeader);
+
+        const panelControls = document.createElement('div');
+        panelControls.style.cssText = `
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        `;
+        panel.appendChild(panelControls);
+
         // 添加文字按钮
-        const addTextBtn = this.createButton('添加文字', () => {
-            const text = new fabric.IText('双击编辑文字', {
+        const addTextBtn = this.createButton('Add Text', () => {
+            const text = new fabric.IText('Double-click to edit', {
                 fontSize: 48,
                 fill: '#ffffff',
                 fontFamily: 'Arial',
@@ -2282,11 +2328,18 @@ class ControlPanel {
             min-width: 100px;
         `;
         
-        const fonts = ['Arial', 'Times New Roman', 'Courier New', '宋体', '黑体', '微软雅黑'];
+        const fonts = [
+            { label: 'Arial',              value: 'Arial' },
+            { label: 'Times New Roman',    value: 'Times New Roman' },
+            { label: 'Courier New',        value: 'Courier New' },
+            { label: 'SimSun (Win)',        value: 'SimSun' },
+            { label: 'SimHei (Win)',        value: 'SimHei' },
+            { label: 'Microsoft YaHei (Win)', value: 'Microsoft YaHei' },
+        ];
         fonts.forEach(font => {
             const option = document.createElement('option');
-            option.value = font;
-            option.textContent = font;
+            option.value = font.value;
+            option.textContent = font.label;
             fontSelector.appendChild(option);
         });
         
@@ -2339,7 +2392,23 @@ class ControlPanel {
             background: #444;
             cursor: pointer;
         `;
-        
+
+        const colorLabel = document.createElement('span');
+        colorLabel.textContent = 'Color';
+        colorLabel.style.cssText = `
+            color: #fff;
+            font-size: 12px;
+            margin-right: 4px;
+        `;
+
+        const colorContainer = document.createElement('div');
+        colorContainer.style.cssText = `
+            display: flex;
+            align-items: center;
+        `;
+        colorContainer.appendChild(colorLabel);
+        colorContainer.appendChild(colorPicker);
+
         colorPicker.oninput = () => {
             const activeObj = this.canvas.getActiveObject();
             if (activeObj && activeObj.type === 'i-text') {
@@ -2363,7 +2432,7 @@ class ControlPanel {
         `;
         
         const bgColorLabel = document.createElement('span');
-        bgColorLabel.textContent = '背景';
+        bgColorLabel.textContent = 'Background';
         bgColorLabel.style.cssText = `
             color: #fff;
             font-size: 12px;
@@ -2435,7 +2504,7 @@ class ControlPanel {
         
         // 字间距控制
         const charSpacingLabel = document.createElement('span');
-        charSpacingLabel.textContent = '字间距';
+        charSpacingLabel.textContent = 'Char Spacing';
         charSpacingLabel.style.cssText = `
             color: #fff;
             font-size: 12px;
@@ -2474,7 +2543,7 @@ class ControlPanel {
         
         // 行间距控制
         const lineHeightLabel = document.createElement('span');
-        lineHeightLabel.textContent = '行间距';
+        lineHeightLabel.textContent = 'Line Height';
         lineHeightLabel.style.cssText = `
             color: #fff;
             font-size: 12px;
@@ -2514,7 +2583,7 @@ class ControlPanel {
         
         // 描边控制
         const strokeLabel = document.createElement('span');
-        strokeLabel.textContent = '描边';
+        strokeLabel.textContent = 'Stroke';
         strokeLabel.style.cssText = `
             color: #fff;
             font-size: 12px;
@@ -2578,15 +2647,15 @@ class ControlPanel {
 
         
         // 添加所有控件到面板
-        panel.appendChild(addTextBtn);
-        panel.appendChild(fontSelector);
-        panel.appendChild(sizeSelector);
-        panel.appendChild(colorPicker);
-        panel.appendChild(bgColorContainer);
-        panel.appendChild(styleContainer);
-        panel.appendChild(charSpacingContainer);
-        panel.appendChild(lineHeightContainer);
-        panel.appendChild(strokeContainer);
+        panelControls.appendChild(addTextBtn);
+        panelControls.appendChild(fontSelector);
+        panelControls.appendChild(sizeSelector);
+        panelControls.appendChild(colorContainer);
+        panelControls.appendChild(bgColorContainer);
+        panelControls.appendChild(styleContainer);
+        panelControls.appendChild(charSpacingContainer);
+        panelControls.appendChild(lineHeightContainer);
+        panelControls.appendChild(strokeContainer);
 
 
         
@@ -2643,18 +2712,21 @@ class ControlPanel {
         const layerSelector = this.createLayerSelector();
         this.container.appendChild(layerSelector);
 
-        const loadButton = this.createButton('加载', () => {
+        const loadButton = this.createButton('Load', () => {
             if (this.node.id) {
                 queueManager.queueOutputNodes([this.node.id]);
             }
         });
-        
+        loadButton.title = 'Queue this node';
+
         // 添加文字功能按钮
-        const textButton = this.createButton('文字', () => {
+        const textButton = this.createButton('Text', () => {
             this.toggleTextPanel();
         });
+        textButton.title = 'Toggle text layer controls';
 
-        const resetButton = this.createButton('重置', () => {
+        const resetButton = this.createButton('Reset', () => {
+            if (!confirm('Reset canvas? This will clear all layers and cannot be undone.')) return;
             if (this.node.id) {
                 // 保存当前节点的状态
                 const currentNode = this.node;
@@ -2715,7 +2787,7 @@ class ControlPanel {
                                 );
                             }
                             
-                            // 更新尺寸输入框显示
+                            // Update size input fields显示
                             if (new_node.sizeOverlay?.updateSizeInputs) {
                                 new_node.sizeOverlay.updateSizeInputs(width, height);
                             }
@@ -2739,6 +2811,8 @@ class ControlPanel {
             });
         });
         settingsButton.style.padding = '5px 8px';
+        settingsButton.title = 'Settings';
+        resetButton.title = 'Reset canvas layers';
 
         // 添加控件到容器
         this.container.appendChild(loadButton);
@@ -2887,17 +2961,19 @@ class FastCanvasOverlay {
         const widthInput = document.createElement("input");
         widthInput.type = "number";
         widthInput.id = "canvas-width";
-        widthInput.placeholder = "宽度";
+        widthInput.placeholder = "Width";
         widthInput.value = initialSize.width; // 使用保存的宽度
         widthInput.style.cssText = inputStyle;
-        
+        widthInput.title = "Width in pixels. Enter 0 to scale proportionally to the height.";
+
         // 创建高度输入框时使用保存的值
         const heightInput = document.createElement("input");
         heightInput.type = "number";
         heightInput.id = "canvas-height";
-        heightInput.placeholder = "高度";
+        heightInput.placeholder = "Height";
         heightInput.value = initialSize.height; // 使用保存的高度
         heightInput.style.cssText = inputStyle;
+        heightInput.title = "Height in pixels. Enter 0 to scale proportionally to the width.";
         // 更新尺寸显示函数（显示实际尺寸）
         const updateSizeInputs = (width, height) => {
             widthInput.value = width;
@@ -2906,7 +2982,7 @@ class FastCanvasOverlay {
         
         // 创建更新按钮
         const updateButton = document.createElement("button");
-        updateButton.textContent = "更新尺寸";
+        updateButton.textContent = "Update Size";
         updateButton.style.cssText = buttonStyle;
         updateButton.onclick = async () => {
             if (!node.canvasInstance?.canvas) return;
@@ -2915,7 +2991,7 @@ class FastCanvasOverlay {
             let customHeight = parseInt(heightInput.value, 10);
             
             if (isNaN(customWidth) && isNaN(customHeight)) {
-                console.warn('[FastCanvas] 无效的尺寸输入');
+                console.warn('[FastCanvas] Invalid size input');
                 return;
             }
             
@@ -2934,7 +3010,7 @@ class FastCanvasOverlay {
                 const ratio = customWidth / currentWidth;
                 customHeight = Math.round(currentHeight * ratio);
             } else if (customWidth === 0 && customHeight === 0) {
-                console.warn('[FastCanvas] 宽度和高度不能同时为0');
+                console.warn('[FastCanvas] Width and height cannot both be 0');
                 return;
             }
             
@@ -2976,7 +3052,7 @@ class FastCanvasOverlay {
                     const scaleY = adjustedHeight / origHeight;
                     const scale = Math.max(scaleX, scaleY); // 使用较大的缩放比例以填充
             
-                    // 计算居中位置
+                    // Calculate centered position
                     const scaledWidth = origWidth * scale;
                     const scaledHeight = origHeight * scale;
                     const left = (adjustedWidth - scaledWidth) / 2;
@@ -3066,9 +3142,21 @@ class FastCanvasOverlay {
                     height: adjustedHeight
                 }));
 
-            
+                updateButton.textContent = '✓ Updated';
+                updateButton.style.background = '#2a5c2a';
+                setTimeout(() => {
+                    updateButton.textContent = 'Update Size';
+                    updateButton.style.background = '#444';
+                }, 1500);
+
             } catch (error) {
-                console.error('[FastCanvas] 更新尺寸失败:', error);
+                console.error('[FastCanvas] Failed to update size:', error);
+                updateButton.textContent = '✗ Failed';
+                updateButton.style.background = '#5c2a2a';
+                setTimeout(() => {
+                    updateButton.textContent = 'Update Size';
+                    updateButton.style.background = '#444';
+                }, 1500);
             }
         };
 
@@ -3154,7 +3242,7 @@ class FastCanvasOverlay {
         
         // 创建上传按钮
         const uploadButton = document.createElement("button");
-        uploadButton.textContent = "上传图片";
+        uploadButton.textContent = "Upload Image";
         uploadButton.style.cssText = buttonStyle;  // 使用已有的按钮样式
         
         // 处理点击上传按钮
@@ -3173,6 +3261,7 @@ class FastCanvasOverlay {
         };
         const lockButton = document.createElement("button");
         lockButton.innerHTML = '🔓'; // 默认未锁定状态
+        lockButton.title = 'Lock canvas';
         lockButton.style.cssText = buttonStyle;
         lockButton.style.marginLeft = 'auto'; // 将按钮推到最右边
         lockButton.dataset.locked = 'false';
@@ -3180,6 +3269,7 @@ class FastCanvasOverlay {
         const updateLockStyle = (isLocked) => {
             if (isLocked) {
                 lockButton.innerHTML = '🔒';
+                lockButton.title = 'Unlock canvas';
                 lockButton.style.background = '#663c3c';
                 overlayContainer.classList.add('canvas-locked');
                 
@@ -3216,6 +3306,7 @@ class FastCanvasOverlay {
                 }
             } else {
                 lockButton.innerHTML = '🔓';
+                lockButton.title = 'Lock canvas';
                 lockButton.style.background = '#444';
                 overlayContainer.classList.remove('canvas-locked');
                 
@@ -3432,7 +3523,7 @@ app.registerExtension({
                         this.canvasInstance.maxDisplaySize
                     );
             
-                    // 更新容器尺寸
+                    // Update container size
                     element.style.minWidth = `${scaledSize.width}px`;
                     element.style.minHeight = `${scaledSize.height + CANVAS_SIZE.CONTROL_PANEL_HEIGHT}px`;
                     
@@ -3497,9 +3588,9 @@ app.registerExtension({
                             need_update: true
                         })
                     }).then(() => {
-                        console.log(`[FastCanvas] 已发送刷新信号给节点 ${this.id}`);
+                        console.log(`[FastCanvas] Refresh signal sent to node ${this.id}`);
                     }).catch(error => {
-                        console.error(`[FastCanvas] 发送刷新信号失败:`, error);
+                        console.error(`[FastCanvas] Failed to send refresh signal:`, error);
                     });
                 }, 0);
                 

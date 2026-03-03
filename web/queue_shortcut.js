@@ -138,7 +138,7 @@ class QueueManager {
       this.isLGTriggered = true; // 设置 LG 触发标记
       await app.queuePrompt();
     } catch (e) {
-      console.error("队列节点时出错:", e);
+      console.error("Error queuing node:", e);
     } finally {
       this.queueNodeIds = null;
       this.isLGTriggered = false; // 清除 LG 触发标记
@@ -165,17 +165,17 @@ const queueManager = new QueueManager();
 function queueSelectedOutputNodes() {
   const selectedNodes = app.canvas.selected_nodes;
   if (!selectedNodes || Object.keys(selectedNodes).length === 0) {
-    console.log("[LG]队列: 没有选中的节点");
+    console.log("[LG]Queue: No nodes selected");
     return;
   }
 
   const outputNodes = getOutputNodes(Object.values(selectedNodes));
   if (!outputNodes || outputNodes.length === 0) {
-    console.log("[LG]队列: 选中的节点中没有输出节点");
+    console.log("[LG]Queue: No output nodes in selected nodes");
     return;
   }
 
-  console.log(`[LG]队列: 执行 ${outputNodes.length} 个输出节点`);
+  console.log(`[LG]Queue: Executing ${outputNodes.length} output nodes`);
   queueManager.queueOutputNodes(outputNodes.map((n) => n.id));
 }
 
@@ -221,13 +221,13 @@ app.registerExtension({
     {
       id: "LG.QueueSelectedOutputNodes",
       icon: "pi pi-play",
-      label: "执行选中的输出节点",
+      label: "Execute Selected Output Nodes",
       function: queueSelectedOutputNodes
     },
     {
       id: "LG.QueueGroupOutputNodes", 
       icon: "pi pi-sitemap",
-      label: "执行组内输出节点",
+      label: "Execute Group Output Nodes",
       function: queueGroupOutputNodes
     }
   ]

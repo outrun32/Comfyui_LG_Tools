@@ -94,13 +94,15 @@ export class TerminalManager {
             // 添加多按钮组件：清理日志 + 执行
             const buttons = [
                 {
-                    text: "清理日志",
+                    text: "Clear Logs",
+                    color: "#1a1a1a",
                     callback: () => {
                         this.clearTerminal();
                     }
                 },
                 {
-                    text: "执行",
+                    text: "Execute",
+                    color: "#1a3050",
                     callback: () => {
                         queueSelectedOutputNodes();
                     }
@@ -116,7 +118,7 @@ export class TerminalManager {
         } catch (error) {
             console.error("Failed to load button components:", error);
             // 如果动态导入失败，回退到原来的单按钮
-            let clearBtn = Util.AddButtonWidget(node, "清空日志", () => {
+            let clearBtn = Util.AddButtonWidget(node, "Clear Logs", () => {
                 this.clearTerminal();
             });
             clearBtn.width = 128;

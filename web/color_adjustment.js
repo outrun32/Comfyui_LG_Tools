@@ -254,14 +254,14 @@ app.registerExtension({
                         })
                     }).then(response => {
                         if (!response.ok) {
-                            throw new Error(`服务器返回错误: ${response.status}`);
+                            throw new Error(`Server returned error: ${response.status}`);
                         }
                         return response.json();
                     }).catch(error => {
-                        console.error('数据发送失败:', error);
+                        console.error('Failed to send data:', error);
                     });
                 } catch (error) {
-                    console.error('发送数据时出错:', error);
+                    console.error('Error while sending data:', error);
                 }
             };
 

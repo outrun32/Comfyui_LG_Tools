@@ -14,7 +14,7 @@ async function getInputFileList() {
         }
         return [];
     } catch (error) {
-        console.error("获取文件列表失败:", error);
+        console.error("Failed to get file list:", error);
         return [];
     }
 }
@@ -31,16 +31,16 @@ async function deleteImageFile(filename) {
         if (response.status === 200) {
             const result = await response.json();
             if (result.success) {
-                console.log(`文件 ${filename} 删除成功`);
+                console.log(`File ${filename} deleted successfully`);
                 return true;
             }
         } else {
             const error = await response.json();
-            console.error(`删除失败: ${error.error || '未知错误'}`);
+            console.error(`Delete failed: ${error.error || 'Unknown error'}`);
             return false;
         }
     } catch (error) {
-        console.error(`删除文件失败: ${error}`);
+        console.error(`Failed to delete file: ${error}`);
         return false;
     }
 }
@@ -74,7 +74,7 @@ async function loadLatestImage(node, folder_type) {
             }
         }
     } catch (error) {
-        console.error(`加载图像失败: ${error}`);
+        console.error(`Failed to load image: ${error}`);
     }
     return false;
 }
@@ -177,11 +177,11 @@ function addThumbnailAndDeleteToMenuItem(menuItem, filename, node, contextMenu) 
     thumbnail.onerror = function() {
         thumbnailContainer.innerHTML = `
             <span style="
-                color: #888; 
-                font-size: 10px; 
+                color: #888;
+                font-size: 10px;
                 text-align: center;
                 line-height: 1.2;
-            ">无<br>预览</span>
+            ">No<br>Preview</span>
         `;
     };
     
@@ -231,7 +231,7 @@ function addThumbnailAndDeleteToMenuItem(menuItem, filename, node, contextMenu) 
     // 创建删除按钮 - 扩大点击范围
     const deleteButton = document.createElement('button');
     deleteButton.innerHTML = '✕';
-    deleteButton.title = `删除 ${filename}`;
+    deleteButton.title = `Delete ${filename}`;
     deleteButton.style.cssText = `
         width: 28px;
         height: 28px;

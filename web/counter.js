@@ -17,7 +17,7 @@ app.registerExtension({
                 this.currentCountText = "";
                 
                 // 添加刷新按钮
-                this.addWidget("button", "refresh", "刷新计数器", () => {
+                this.addWidget("button", "refresh", "Refresh Counter", () => {
                     this.resetCounter();
                 });
                 
@@ -73,12 +73,12 @@ app.registerExtension({
                     const result = await response.json();
                     
                     if (result.status === "success") {
-                        console.log("计数器已重置:", result.message);
+                        console.log("Counter has been reset:", result.message);
                     } else {
-                        console.error("重置计数器失败:", result.message);
+                        console.error("Failed to reset counter:", result.message);
                     }
                 } catch (error) {
-                    console.error("重置计数器时发生错误:", error);
+                    console.error("Error occurred while resetting counter:", error);
                 }
             };
             
@@ -88,7 +88,7 @@ app.registerExtension({
                 const r = getExtraMenuOptions ? getExtraMenuOptions.apply(this, arguments) : undefined;
                 
                 options.unshift({
-                    content: "重置计数器",
+                    content: "Reset Counter",
                     callback: () => {
                         this.resetCounter();
                     }
@@ -111,7 +111,7 @@ app.registerExtension({
                 // 触发重绘
                 node.setDirtyCanvas(true, true);
                 
-                console.log(`[Counter] 节点 ${detail.node_id} 计数更新: ${detail.count}`);
+                console.log(`[Counter] Node ${detail.node_id} count updated: ${detail.count}`);
             }
         });
     }

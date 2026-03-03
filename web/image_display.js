@@ -99,8 +99,8 @@ class ImageDisplayNode extends BaseNode {
         
         if (name === "mediaSource" && value) {
             this.handleMediaSource(value).catch(error => {
-                console.error("处理媒体源失败:", error);
-                alert("处理媒体源失败: " + error.message);
+                console.error("Failed to process media source:", error);
+                alert("Failed to process media source: " + error.message);
             });
         }
     }
@@ -111,7 +111,7 @@ class ImageDisplayNode extends BaseNode {
             
             if (source.startsWith('http://') || source.startsWith('https://')) {
                 // 处理网络地址
-                console.log('开始下载网络文件:', source);
+                console.log('Starting to download network file:', source);
                 
                 // 通过后端代理下载
                 const response = await api.fetchApi('/proxy_download', {
@@ -123,13 +123,13 @@ class ImageDisplayNode extends BaseNode {
 
                 const data = await response.json();
                 if (data.status === "error") {
-                    throw new Error(data.message || '下载文件失败');
+                    throw new Error(data.message || 'Failed to download file');
                 }
 
                 // 获取已下载的文件
                 const fileResponse = await fetch(this.getViewPath(`input/image_display/${data.name}`));
                 if (!fileResponse.ok) {
-                    throw new Error('无法加载已下载的文件');
+                    throw new Error('Failed to load downloaded file');
                 }
                 
                 const blob = await fileResponse.blob();
@@ -151,7 +151,7 @@ class ImageDisplayNode extends BaseNode {
                     fullPath = cleanPath.startsWith('./') ? cleanPath.slice(2) : cleanPath;
                 }
                 
-                console.log('开始处理文件:', fullPath, isRelativePath ? '(相对路径)' : '(绝对路径)');
+                console.log('Starting to process file:', fullPath, isRelativePath ? '(relative path)' : '(absolute path)');
                 
                 // 检查文件是否已经在目标文件夹中
                 const fileName = fullPath.split(/[\\/]/).pop();
@@ -159,10 +159,10 @@ class ImageDisplayNode extends BaseNode {
                 
                 // 如果文件已经在目标文件夹中，直接使用
                 if (cleanPath.includes('/input/image_display/') || cleanPath.includes('\\input\\image_display\\')) {
-                    console.log('文件已在目标文件夹中，直接使用');
+                    console.log('File already in target folder, using directly');
                     const fileResponse = await fetch(this.getViewPath(`input/image_display/${fileName}`));
                     if (!fileResponse.ok) {
-                        throw new Error('无法加载文件');
+                        throw new Error('Failed to load file');
                     }
                     
                     const blob = await fileResponse.blob();
@@ -194,13 +194,13 @@ class ImageDisplayNode extends BaseNode {
     
                 const data = await response.json();
                 if (data.status === "error") {
-                    throw new Error(data.message || '处理本地文件失败');
+                    throw new Error(data.message || 'Failed to process local file');
                 }
     
                 // 获取复制后的文件
                 const fileResponse = await fetch(this.getViewPath(`input/image_display/${fileName}`));
                 if (!fileResponse.ok) {
-                    throw new Error('无法加载文件');
+                    throw new Error('Failed to load file');
                 }
                 
                 const blob = await fileResponse.blob();
@@ -209,10 +209,10 @@ class ImageDisplayNode extends BaseNode {
             }
     
             // 保存和加载媒体
-            console.log('开始保存文件:', file.name);
+            console.log('Starting to save file:', file.name);
             const savedPath = await this.saveMediaToTemp(file);
             if (!savedPath) {
-                throw new Error('保存文件失败');
+                throw new Error('Failed to save file');
             }
     
             // 根据文件类型加载媒体
@@ -227,7 +227,7 @@ class ImageDisplayNode extends BaseNode {
             }
     
         } catch (error) {
-            console.error('处理媒体源失败:', error);
+            console.error('Failed to process media source:', error);
             throw error;
         }
     }
@@ -394,9 +394,9 @@ class ImageDisplayNode extends BaseNode {
             ctx.font = "14px Arial";
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
-            ctx.fillText("拖放媒体文件到此处", this.size[0] / 2, this.size[1] / 2);
+            ctx.fillText("Drag and drop media files here", this.size[0] / 2, this.size[1] / 2);
             ctx.font = "12px Arial";
-            ctx.fillText("支持图片、GIF和视频", this.size[0] / 2, this.size[1] / 2 + 20);
+            ctx.fillText("Supports images, GIF, and video", this.size[0] / 2, this.size[1] / 2 + 20);
         }
     
         ctx.restore();
@@ -477,7 +477,7 @@ class ImageDisplayNode extends BaseNode {
             }
             return null;
         } catch (error) {
-            console.error('保存文件失败:', error);
+            console.error('Failed to save file:', error);
             return null;
         }
     }
@@ -578,7 +578,7 @@ class ImageDisplayNode extends BaseNode {
         });
     }
     async loadMedia(file, type) {
-        console.log(`开始加载${type}:`, file.name);
+        console.log(`Starting to load ${type}:`, file.name);
         
         const tempPath = await this.saveMediaToTemp(file);
         if (!tempPath) {
@@ -618,7 +618,7 @@ class ImageDisplayNode extends BaseNode {
     loadGif(file) { return this.loadMedia(file, 'gif'); }
     updateAudioSettings() {
         if (this.media && this.mediaType === 'video') {
-            console.log('更新音频设置，当前音量:', this.properties.volume); 
+            console.log('Updating audio settings, current volume:', this.properties.volume); 
             this.media.volume = this.properties.volume;
             this.media.muted = false;
         }
@@ -703,7 +703,7 @@ class ImageDisplayNode extends BaseNode {
                 }
                  canvas.setDirty(true);
             } catch (error) {
-                console.error('加载媒体文件失败:', error);
+                console.error('Failed to load media file:', error);
             } finally {
                 // 清理文件输入框
                 document.body.removeChild(fileInput);
@@ -711,7 +711,7 @@ class ImageDisplayNode extends BaseNode {
         });
          options.unshift(  // 在开头添加上传选项
             {
-                content: "上传媒体文件",
+                content: "Upload Media File",
                 callback: () => {
                     fileInput.click();
                 }
@@ -720,14 +720,14 @@ class ImageDisplayNode extends BaseNode {
         );
         options.push(
             {
-                content: "水平翻转",
+                content: "Flip Horizontal",
                 callback: () => {
                     this.properties.flipH = !this.properties.flipH;
                     canvas.setDirty(true);
                 }
             },
             {
-                content: "垂直翻转",
+                content: "Flip Vertical",
                 callback: () => {
                     this.properties.flipV = !this.properties.flipV;
                     canvas.setDirty(true);
@@ -737,12 +737,12 @@ class ImageDisplayNode extends BaseNode {
 
             ...(this.mediaType === 'video' ? [
                 {
-                    content: this.properties.autoplay ? "暂停自动播放" : "启用自动播放",
+                    content: this.properties.autoplay ? "Disable Autoplay" : "Enable Autoplay",
                     callback: () => {
                         this.properties.autoplay = !this.properties.autoplay;
                         if (this.media) {
                             if (this.properties.autoplay) {
-                                this.media.play().catch(e => console.error('播放失败:', e));
+                                this.media.play().catch(e => console.error('Playback failed:', e));
                             } else {
                                 this.media.pause();
                             }
@@ -752,13 +752,13 @@ class ImageDisplayNode extends BaseNode {
                     }
                 },
                 {
-                    content: this.properties.loop ? "禁用循环播放" : "启用循环播放",
+                    content: this.properties.loop ? "Disable Loop" : "Enable Loop",
                     callback: () => {
                         this.properties.loop = !this.properties.loop;
                         if (this.media) {
                             this.media.loop = this.properties.loop;
                             if (this.properties.loop && this.properties.autoplay) {
-                                this.media.play().catch(e => console.error('播放失败:', e));
+                                this.media.play().catch(e => console.error('Playback failed:', e));
                             }
                         }
                         canvas.setDirty(true);
@@ -767,13 +767,13 @@ class ImageDisplayNode extends BaseNode {
                 null,
                 {
                     content: `<div style="padding: 5px">
-                        <div id="${volumeId}-label">音量: ${Math.round((this.properties.volume || 0) * 100)}%</div>
-                        <input type="range" 
+                        <div id="${volumeId}-label">Volume: ${Math.round((this.properties.volume || 0) * 100)}%</div>
+                        <input type="range"
                                id="${volumeId}-slider"
-                               min="0" 
-                               max="1" 
-                               step="0.01" 
-                               value="${this.properties.volume}" 
+                               min="0"
+                               max="1"
+                               step="0.01"
+                               value="${this.properties.volume}"
                                style="width: 150px"
                                onmousedown="event.stopPropagation()"
                         />
@@ -784,7 +784,7 @@ class ImageDisplayNode extends BaseNode {
             ] : []),
             null,
             {
-                content: "清除媒体",
+                content: "Clear Media",
                 callback: () => {
                     // 处理视频媒体
                     if (this.media && this.mediaType === 'video') {
@@ -819,7 +819,7 @@ class ImageDisplayNode extends BaseNode {
                         node.media.volume = value;
                         node.media.muted = false;
                     }
-                    label.textContent = `音量: ${Math.round(value * 100)}%`;
+                    label.textContent = `Volume: ${Math.round(value * 100)}%`;
                     node.graph.setDirtyCanvas(true);
                     e.stopPropagation();
                 });
@@ -1078,10 +1078,10 @@ class MediaPlayerNode extends BaseNode {
                     ">
                         <h3 style="margin: 0 0 10px 0; color: ${theme.headingColor};">Media Player</h3>
                         <div>
-                            支持：<br>
-                            1. 网页 URL<br>
-                            2. 视频嵌入代码<br>
-                            3. GitHub Markdown地址
+                            Supports:<br>
+                            1. Web URLs<br>
+                            2. Video embed codes<br>
+                            3. GitHub Markdown URLs
                         </div>
                     </div>
                 `;
@@ -1102,12 +1102,12 @@ class MediaPlayerNode extends BaseNode {
                     const rawUrl = url
                         .replace('github.com', 'raw.githubusercontent.com')
                         .replace('/blob/', '/');
-                    
-                    console.log('获取 GitHub markdown:', rawUrl);
-                    
+
+                    console.log('Fetching GitHub markdown:', rawUrl);
+
                     const response = await fetch(rawUrl);
                     if (!response.ok) {
-                        throw new Error('无法获取 Markdown 内容');
+                        throw new Error('Failed to fetch Markdown content');
                     }
                     
                     let content = await response.text();
@@ -1165,9 +1165,9 @@ class MediaPlayerNode extends BaseNode {
                     this.inner.innerHTML = marked.parse(content) + styleElement.outerHTML;
                     return;
                 } catch (error) {
-                    console.error('处理 Markdown 失败:', error);
+                    console.error('Failed to process Markdown:', error);
                     this.inner.innerHTML = `<div class="error" style="color: ${this.properties.theme === 'dark' ? '#ff6b6b' : '#ff0000'}">
-                        加载 Markdown 失败: ${error.message}</div>`;
+                        Failed to load Markdown: ${error.message}</div>`;
                     return;
                 }
             }
@@ -1263,13 +1263,13 @@ class MediaPlayerNode extends BaseNode {
         // 返回全新的菜单数组，不使用或扩展现有选项
         return [
             {
-                content: this.properties.theme === 'light' ? "✓ 浅色主题" : "浅色主题",
+                content: this.properties.theme === 'light' ? "✓ Light Theme" : "Light Theme",
                 callback: () => {
                     this.setProperty("theme", "light");
                 }
             },
             {
-                content: this.properties.theme === 'dark' ? "✓ 深色主题" : "深色主题",
+                content: this.properties.theme === 'dark' ? "✓ Dark Theme" : "Dark Theme",
                 callback: () => {
                     this.setProperty("theme", "dark");
                 }

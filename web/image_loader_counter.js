@@ -22,7 +22,7 @@ app.registerExtension({
                 this.totalImagesText = "";
                 
                 // 添加刷新按钮
-                this.addWidget("button", "refresh", "🔄 刷新计数器", () => {
+                this.addWidget("button", "refresh", "🔄 Refresh Counter", () => {
                     this.resetImageLoaderCounter();
                 });
                 
@@ -82,17 +82,17 @@ app.registerExtension({
                     });
                     
                     const result = await response.json();
-                    
+
                     if (result.status === "success") {
-                        console.log("图片加载器计数器已重置:", result.message);
+                        console.log("Image loader counter has been reset:", result.message);
                         // 更新显示
                         this.currentCountText = result.current.toString();
                         this.setDirtyCanvas(true, true);
                     } else {
-                        console.error("重置计数器失败:", result.message);
+                        console.error("Failed to reset counter:", result.message);
                     }
                 } catch (error) {
-                    console.error("重置计数器时发生错误:", error);
+                    console.error("Error occurred while resetting counter:", error);
                 }
             };
             
@@ -102,7 +102,7 @@ app.registerExtension({
                 const r = getExtraMenuOptions ? getExtraMenuOptions.apply(this, arguments) : undefined;
                 
                 options.unshift({
-                    content: "🔄 重置计数器",
+                    content: "🔄 Reset Counter",
                     callback: () => {
                         this.resetImageLoaderCounter();
                     }
@@ -131,7 +131,7 @@ app.registerExtension({
                 // 触发重绘
                 node.setDirtyCanvas(true, true);
                 
-                console.log(`[ImageLoaderCounter] 节点 ${detail.node_id} 索引更新: ${detail.count}/${detail.total || '?'}`);
+                console.log(`[ImageLoaderCounter] Node ${detail.node_id} index updated: ${detail.count}/${detail.total || '?'}`);
             }
         });
     }

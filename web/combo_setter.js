@@ -15,7 +15,7 @@ app.registerExtension({
                 let selectedWidget = this.widgets?.find(w => w.name === "selected");
                 
                 if (!labelsWidget || !promptsWidget || !selectedWidget) {
-                    console.error("ComboSetter: 无法找到所需的widgets");
+                    console.error("ComboSetter: Unable to find required widgets");
                     return result;
                 }
                 
@@ -51,7 +51,7 @@ app.registerExtension({
                         .filter(line => line.length > 0);
                     
                     if (labelLines.length === 0) {
-                        console.warn("ComboSetter: labels为空");
+                        console.warn("ComboSetter: labels are empty");
                         selectedWidget.options.values = [""];
                         selectedWidget.value = "";
                         return;
@@ -67,8 +67,8 @@ app.registerExtension({
                     
                     // 触发更新
                     this.setDirtyCanvas(true, false);
-                    
-                    console.log("ComboSetter: 已更新Combo选项", labelLines);
+
+                    console.log("ComboSetter: Combo options updated", labelLines);
                 };
                 
                 // 自动计算节点大小
